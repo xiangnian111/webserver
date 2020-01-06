@@ -19,6 +19,8 @@ void cat(int, FILE *);
 void not_found(int);
 void bad_request(int);
 void cannot_execute(int);
+void error_die(const char *);
+void headers(int, const char *);
 
 
 //处理从套接字上监听的一个http请求
@@ -403,4 +405,29 @@ void cannot_execute(int client)
     send(client, buf, strlen(buf), 0);
 }
 
+//把错误信息写到 perror 并退出
+void error_die(const char *sc)
+{
+    //出错信息处理
+    perror(sc);
+    exit(1);
+}
+
+//把 HTTP 响应的头部写到套接字
+void headers(int client, const char *filename)
+{
+    char buf[1024];
+    (void)filename;
+
+    //正常的 HTTP header
+    strcpy(buf, "HTTP/1.0 200 OK\r\n");
+    send(client, buf, strlen(buf), 0);
+    //服务器信息
+    strcpy(buf, SERVER_STRING);
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "Content-Type: text/html\r\n");
+    send(client, buf, strlen(buf), 0);
+    strcpy(buf, "\r\n");
+    send(client, buf, strlen(buf), 0);
+}
 
