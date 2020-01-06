@@ -298,8 +298,34 @@ void  execute_cgi(int client, const char *path, const char *method, char *string
         waitpid(pid, &status, 0);
     }
 }
-    
 
+//调用cat函数把服务器文件返回给浏览器
+void serve_file(int client,char *filename)
+{
+    FILE *resource = NULL;
+    int char_num = 1;
+    char buf[1024];
+
+    //读取并丢弃 header
+    while ((char_num > 0) && strcmp("\n", buf))
+    {
+        char_num = getline(client, buf, sizeof(buf));
+    }
+    // 打开 sever 的文件
+    resource = fopen(filename, "r");
+    if (resource == NULL)
+    {
+        not_found(client);
+    }
+    else
+    {
+        //写 HTTP header 
+        headers(client, filename);
+        //复制文件
+        cat(client, resource);
+    }
+    fclose(resource);
+}
 
 
         
