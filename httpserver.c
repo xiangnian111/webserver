@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<sys/types.h>
-#include<sys/sockets.h>
+#include<sys/socket.h>
 #include<netinet.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -175,8 +175,13 @@ void error_request(int client )
     send(client, buf, strlen(buf), 0); 
  }
 
+//cgi程序的处理
+void  execute_cgi(int client, const char *path, const char *method, char *string)
+{
 
-       
+
+}
+    
 
 
 
