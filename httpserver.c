@@ -18,6 +18,7 @@ void  serve_file(int, char *);
 void cat(int, FILE *);
 void not_found(int);
 void bad_request(int);
+void cannot_execute(int);
 
 
 //处理从套接字上监听的一个http请求
@@ -385,3 +386,21 @@ void bad_request(int client)
     sprintf(buf, "such as a POST without a Content-Length.\r\n");
     send(client, buf, sizeof(buf), 0);
 }
+
+//处理发生在执行 cgi 程序时出现的错误
+void cannot_execute(int client)
+{
+    char buf[1024];
+
+    // 回应客户端 cgi 无法执行
+    sprintf(buf, "HTTP/1.0 500 Internal Server Error\r\n");
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "Content-type: text/html\r\n");
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "\r\n");
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "<P>Error prohibited CGI execution.\r\n");
+    send(client, buf, strlen(buf), 0);
+}
+
+
