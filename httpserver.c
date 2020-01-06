@@ -16,7 +16,7 @@ void error_request(int);
 void  execute_cgi(int,char*,char*,char*);
 void  serve_file(int, char *);
 void cat(int, FILE *);
-
+void not_found(int);
 
 
 
@@ -342,5 +342,29 @@ void cat(int client, FILE *resource)
    }
 }
 
-
+//处理找不到请求文件的情况
+void not_found(int client)
+{
+   char buf[1024];
+   //404页面
+   sprintf(buf, "HTTP/1.0 404 Not Found!\r\n");
+   send(client, buf, strlen(buf), 0);
+   //服务器信息
+   sprintf(buf, SERVER_STRING);
+   send(client, buf, strlen(buf), 0);
+   sprintf(buf, "Content-Type: text/html\r\n");
+   send(client, buf, strlen(buf), 0);
+   sprintf(buf, "\r\n");
+   send(client, buf, strlen(buf), 0);
+   sprintf(buf, "<html><title>Not Found</title>\r\n");
+   send(client, buf, strlen(buf), 0);
+   sprintf(buf, "<body><p>The server could not fulfill\r\n");
+   send(client, buf, strlen(buf), 0);
+   sprintf(buf, "your request because the resource specified\r\n");
+   send(client, buf, strlen(buf), 0);
+   sprintf(buf, "is unavailable or nonexistent.\r\n");
+   send(client, buf, strlen(buf), 0);
+   sprintf(buf, "</body></html>\r\n");
+   send(client, buf, strlen(buf), 0);
+}
 
