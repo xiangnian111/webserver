@@ -15,6 +15,7 @@ int getline(int,char*,int);
 void error_request(int);
 void  execute_cgi(int,char*,char*,char*);
 void  serve_file(int, char *);
+void cat(int, FILE *);
 
 
 
@@ -279,15 +280,15 @@ void  execute_cgi(int client, const char *path, const char *method, char *string
         if (strcasecmp(method, "POST") == 0)
 	{
             //接收 POST 过来的数据
-           for (i = 0; i < content_length; i++) 
+           for (i = 0; i < content_lenght; i++) 
 	   {
                recv(client, &c, 1, 0);
                //把 POST 数据写入input，现在重定向到 STDIN
-                write(cgi_input[1], &c, 1);
+                write(input[1], &c, 1);
 	   }
 	}
         //读取output的管道输出到客户端，该管道输入是 STDOUT
-        while (read(cgi_output[0], &c, 1) > 0)
+        while (read(output[0], &c, 1) > 0)
 	{
           send(client, &c, 1, 0);
 	}
@@ -295,7 +296,7 @@ void  execute_cgi(int client, const char *path, const char *method, char *string
         close(output[0]);
         close(input[1]);
         //等待子进程
-        waitpid(pid, &status, 0);
+        waitpid(pid, &stus, 0);
     }
 }
 
@@ -327,7 +328,19 @@ void serve_file(int client,char *filename)
     fclose(resource);
 }
 
+//读取服务器上某个文件写到 socket 套接字
+void cat(int client, FILE *resource)
+{
+   char buf[1024];
 
-        
+   //读取文件中的所有数据写到 socket
+   fgets(buf, sizeof(buf), resource);
+   while (!feof(resource))
+   {
+      send(client, buf, strlen(buf), 0);
+      fgets(buf, sizeof(buf), resource);
+   }
+}
+
 
 
