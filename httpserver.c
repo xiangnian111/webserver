@@ -11,7 +11,7 @@
 
 //定义的函数
 void accept_request(int);
-void getline(int,char*,int);
+int getline(int,char*,int);
 void error_request(int);
 void  execute_cgi(int,char*,char*,char*);
 void  serve_file(int, char *);
@@ -117,7 +117,43 @@ void accept_request(int client)
     }
 }
 
-        	
+//获取下一行请求的函数
+int getline(int sock,char *buf,int size)
+{
+    int n,i=0;
+    char c='\0';
+    while((i<size-1)&&(c!='\n'))
+    {
+       //一次仅仅接收一个字节
+       n=recv(sock,&c,1,0);
+       if(n>0)
+       {
+	  if(c=='\r')
+	  {
+            //下一次读取依然可以获得这次读取的内容
+	     n=recv(sock,&c,1,MSG_PEEK);
+	 
+	    //如果是换行，则把它吸收
+	     if ((n > 0) && (c == '\n'))
+             {
+                recv(sock, &c, 1, 0);
+	     }
+	     else
+                c='\n';
+	  }
+          //存储到缓存区
+          buf[i]=c;
+          i++;
+       }
+       else
+	  c = '\n';
+    }
+    buf[i] = '\0';
+    //返回数组大小
+    return (i);
+}
+
+      
 
 
        
