@@ -153,7 +153,27 @@ int getline(int sock,char *buf,int size)
     return (i);
 }
 
-      
+//表明该请求方法不被支持的函数
+void error_request(int client )
+{
+    char buf[1024];
+    sprintf(buf, "HTTP/1.0 501 Method Not Implemented\r\n");
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, SERVER_STRING);
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "Content-Type: text/html\r\n");
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "\r\n");
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "<html><head><title>Method Not Implemented\r\n");
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "</title></head>\r\n");
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "<body><p>HTTP request method not supported.\r\n");
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, "</body></html>\r\n");
+    send(client, buf, strlen(buf), 0); 
+ }
 
 
        
