@@ -163,23 +163,140 @@ void error_request(int client )
     send(client, buf, strlen(buf), 0);
     sprintf(buf, "Content-Type: text/html\r\n");
     send(client, buf, strlen(buf), 0);
+    sprintf(buf, SERVER_STRING);
     sprintf(buf, "\r\n");
     send(client, buf, strlen(buf), 0);
     sprintf(buf, "<html><head><title>Method Not Implemented\r\n");
     send(client, buf, strlen(buf), 0);
+    sprintf(buf, SERVER_STRING);
     sprintf(buf, "</title></head>\r\n");
     send(client, buf, strlen(buf), 0);
+    sprintf(buf, SERVER_STRING);
     sprintf(buf, "<body><p>HTTP request method not supported.\r\n");
     send(client, buf, strlen(buf), 0);
+    sprintf(buf, SERVER_STRING); 
     sprintf(buf, "</body></html>\r\n");
-    send(client, buf, strlen(buf), 0); 
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf, SERVER_STRING);
+ 
  }
 
 //cgi程序的处理
 void  execute_cgi(int client, const char *path, const char *method, char *string)
 {
+    char buf[1024];
+    char input[2];
+    char output[2];
+    char c;
+    pid_t pid;
+    int stus;
+    int i;
+    int char_num=1;
+    content_lenght=-1;
+   //如果是post请求
+    if(strcasecmp(method,"POST")==0)
+    {
+       //获取下一行请求
+       char_num=getline(client,buf,sizeof(buf));
+       while((char_num>0)&&strcmp("\n",buf))
+       {
+	    buf[15]='\0';
+	    if(strcasecmp(buf,"Content-Length:")==0)
+	    {
+		content_lenght=atoi(&buf[16]);
+	    }
+	    char_num=getline(client,buf,sizeof(buf));
+       }
+       //如果没有找到content_lenght
+       if(content_lenght==-1)
+       {
+          bad_request(client);
+	  return;
+       }
 
+    }
+    //正确，状态玛为200
+    sprintf(buf, "HTTP/1.0 200 OK\r\n");
+    send(client, buf, strlen(buf), 0);
 
+    //建立管道
+    if(pipe(output)<0)
+    {
+	//错误处理
+        cannot_execute(client);
+        return;
+    }
+    if(pipe(input)<0)
+    {
+        cannot_execute(client);
+        return;
+    }
+    if((pid==fork())<0)
+    {
+        cannot_execute(client);
+        return;
+    }
+    //创建子进程
+    if(pid==0)
+    {
+        char meth_env[255];
+        char query_env[255];
+        char length_env[255];
+	//把 STDOUT 重定向到output的写入端 
+	dup2(output[1],1);
+	// 把 STDIN 重定向到input的读取端
+	dup2(input[0]，0);
+        //关闭input的写入端 和output的读取端 
+	close(output[0]);
+	close(input[1]);
+	//设置请求方法的环境变量
+        sprintf(meth_env, "REQUEST_METHOD=%s", method);
+        putenv(meth_env);
+	//GET方法
+        if (strcasecmp(method, "GET") == 0) 
+	{
+            //设置string的环境变量
+	    sprintf(query_env, "QUERY_STRING=%s",string);
+            putenv(query_env);
+	}
+	//POST方法
+	else
+       	{  
+            //设置 content_lenght 的环境变量
+            sprintf(length_env, "CONTENT_LENGTH=%d", content_lenght);
+            putenv(length_env);
+        }
+        //用execl运行cgi程序
+        execl(path, path, NULL);
+        exit(0);
+
+    }
+    else
+    {  
+        //关闭input的读取端 和output的写入端
+        close(output[1]);
+        close(input[0]);
+        if (strcasecmp(method, "POST") == 0)
+	{
+            //接收 POST 过来的数据
+           for (i = 0; i < content_length; i++) 
+	   {
+               recv(client, &c, 1, 0);
+               //把 POST 数据写入input，现在重定向到 STDIN
+                write(cgi_input[1], &c, 1);
+	   }
+	}
+        //读取output的管道输出到客户端，该管道输入是 STDOUT
+        while (read(cgi_output[0], &c, 1) > 0)
+	{
+          send(client, &c, 1, 0);
+	}
+        //关闭管道
+        close(output[0]);
+        close(input[1]);
+        //等待子进程
+        waitpid(pid, &status, 0);
+    }
 }
     
 
