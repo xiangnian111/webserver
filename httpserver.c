@@ -15,7 +15,7 @@
 void accept_request(int);
 int get_line(int,char*,int);
 void error_request(int);
-void execute_cgi(int,char*,char*,char*);
+void execute_cgi(int, const char *, const char *, const char *);
 void serve_file(int, char *);
 void cat(int, FILE *);
 void not_found(int);
