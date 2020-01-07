@@ -73,7 +73,7 @@ void accept_request(int client)
     {
        j++;
     }
-    while(!(' '==buf[j])&&i<sizeof(buf)-1)
+    while(!(' '==buf[j])&&(i<sizeof(uri)-1)&&(j<sizeof(buf)))
     {
        uri[i]=buf[j];
        i++;
