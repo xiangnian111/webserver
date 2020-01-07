@@ -48,7 +48,7 @@ void accept_request(int client)
     //取出第一个单词，一般为GET或POST
     while(!(' '==buf[j])&&(i<sizeof(method)-1))
     {
-	method[i]==buf[j];
+	method[i]=buf[j];
 	i++;
 	j++;
     }
@@ -99,7 +99,7 @@ void accept_request(int client)
        }
     }
     //格式化uri到path数组中
-    sprintf(path,"/home/ubuntu/webServer%s",uri);
+    sprintf(path,"http%s",uri);
     //默认情况为index.html
     if(path[strlen(path)-1]=='/')
     {
@@ -346,6 +346,8 @@ void serve_file(int client,const char *filename)
     char buf[1024];
 
     //读取并丢弃 header
+    buf[0]='A';
+    buf[1]='\0';
     while ((char_num > 0) && strcmp("\n", buf))
     {
         char_num = get_line(client, buf, sizeof(buf));
@@ -480,8 +482,11 @@ int startup(u_short *port)
     }
     //初始化
     memset(&name, 0, sizeof(name));
+    //绑定协议簇
     name.sin_family = AF_INET;
+    //分配端口号
     name.sin_port = htons(*port);
+    //把主机序转换成网络序
     name.sin_addr.s_addr = htonl(INADDR_ANY);
     //2、绑定
     if (bind(httpd, (struct sockaddr *)&name, sizeof(name)) < 0)
