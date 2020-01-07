@@ -251,7 +251,7 @@ void  execute_cgi(int client, const char *path, const char *method,const char *s
 	//把 STDOUT 重定向到output的写入端 
 	dup2(output[1],1);
 	// 把 STDIN 重定向到input的读取端
-	dup2(input[0]，0);
+	dup2(input[0],0);
         //关闭input的写入端 和output的读取端 
 	close(output[0]);
 	close(input[1]);
