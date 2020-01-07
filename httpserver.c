@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <pthread.h>
+#include<stdlib.h>
 
 #define SERVER_STRING "Server: jdbhttpd/0.1.0\r\n"
 
