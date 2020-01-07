@@ -217,13 +217,28 @@ void  execute_cgi(int client, const char *path, const char *method,const char *s
     int i;
     int char_num=1;
     int  content_lenght=-1;
+
+    buf[0]='A';
+    buf[1]='\0';
+    //如果是get请求
+    if(strcasecmp(method,"GET")==0)
+    {
+       //把所有的http header读取并丢弃
+       while((char_num>0)&&(strcmp("\n",buf)))
+       {
+	  char_num=get_line(client,buf,sizeof(buf));
+       }
+    }
+      
    //如果是post请求
-    if(strcasecmp(method,"POST")==0)
+    else
     {
        //获取下一行请求
+       //对post的http请求中找出content_lenght
        char_num=get_line(client,buf,sizeof(buf));
        while((char_num>0)&&strcmp("\n",buf))
        {
+	    //利用\0进行分割
 	    buf[15]='\0';
 	    if(strcasecmp(buf,"Content-Length:")==0)
 	    {
