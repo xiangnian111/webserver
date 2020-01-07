@@ -198,7 +198,7 @@ void  execute_cgi(int client, const char *path, const char *method,const char *s
     int stus;
     int i;
     int char_num=1;
-    content_lenght=-1;
+    int  content_lenght=-1;
    //如果是post请求
     if(strcasecmp(method,"POST")==0)
     {
