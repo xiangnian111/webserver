@@ -65,10 +65,11 @@ void accept_request(int client)
     {
 	flag=1;
     }
-
+    //读取uri地址
+    i=0;
     //提取第二个单词
     //中间以空格分开字段
-    while((' '==buf[j])&&i<sizeof(buf)-1)
+    while((' '==buf[j])&&j<sizeof(buf))
     {
        j++;
     }
