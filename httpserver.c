@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <pthread.h>
 #include<stdlib.h>
+#include <sys/wait.h>
 
 #define SERVER_STRING "Server: jdbhttpd/0.1.0\r\n"
 
@@ -192,8 +193,8 @@ void error_request(int client )
 void  execute_cgi(int client, const char *path, const char *method,const char *string)
 {
     char buf[1024];
-    char input[2];
-    char output[2];
+    int input[2];
+    int output[2];
     char c;
     pid_t pid;
     int stus;
