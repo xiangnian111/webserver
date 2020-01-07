@@ -18,7 +18,7 @@ void accept_request(int);
 int get_line(int,char*,int);
 void error_request(int);
 void execute_cgi(int, const char *, const char *, const char *);
-void serve_file(int, char *);
+void serve_file(int,const char *);
 void cat(int, FILE *);
 void not_found(int);
 void bad_request(int);
@@ -339,7 +339,7 @@ void  execute_cgi(int client, const char *path, const char *method,const char *s
 }
 
 //调用cat函数把服务器文件返回给浏览器
-void serve_file(int client,char *filename)
+void serve_file(int client,const char *filename)
 {
     FILE *resource = NULL;
     int char_num = 1;
