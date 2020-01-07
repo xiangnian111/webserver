@@ -42,7 +42,7 @@ void accept_request(int client)
     i=0;
     j=0;
     //取出第一个单词，一般为GET或POST
-    while(!(''==buf[j])&&(i<sizeof(method)-1))
+    while(!(' '==buf[j])&&(i<sizeof(method)-1))
     {
 	method[i]==buf[j];
 	i++;
@@ -64,11 +64,11 @@ void accept_request(int client)
 
     //提取第二个单词
     //中间以空格分开字段
-    while((''==buf[j])&&i<sizeof(buf)-1)
+    while((' '==buf[j])&&i<sizeof(buf)-1)
     {
        j++;
     }
-    while(!(''==buf[j])&&i<sizeof(buf)-1)
+    while(!(' '==buf[j])&&i<sizeof(buf)-1)
     {
        uri[i]=buf[j];
        i++;
@@ -472,4 +472,35 @@ int startup(u_short *port)
     return(httpd);
 }
 
+int main(void)
+{
+    int server_sock = -1;
+    u_short port = 0;
+    int client_sock = -1;
+    struct sockaddr_in client_name;
+    int client_name_len = sizeof(client_name);
+    pthread_t newthread;
 
+    //在对应端口建立 httpd 服务
+    server_sock = startup(&port);
+    printf("httpd running on port %d\n", port);
+
+    while (1)
+    {
+        //套接字收到客户端连接请求
+        client_sock = accept(server_sock,(struct sockaddr *)&client_name,&client_name_len);
+        if (client_sock == -1)
+	{
+           error_die("accept");
+	}
+        //派生新线程用 accept_request 函数处理新请求
+        if (pthread_create(&newthread , NULL, accept_request, client_sock) != 0)
+	{
+           perror("pthread_create");
+	}
+    }
+    //关闭
+    close(server_sock);
+
+    return 0;
+}
