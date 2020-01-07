@@ -11,10 +11,10 @@
 
 //定义的函数
 void accept_request(int);
-int getline(int,char*,int);
+int get_line(int,char*,int);
 void error_request(int);
-void  execute_cgi(int,char*,char*,char*);
-void  serve_file(int, char *);
+void execute_cgi(int,char*,char*,char*);
+void serve_file(int, char *);
 void cat(int, FILE *);
 void not_found(int);
 void bad_request(int);
@@ -37,7 +37,7 @@ void accept_request(int client)
     char *string=NULL;
 
     //获取请求信息的第一行
-    char_num=getline(client,buf,sizeof(buf));
+    char_num=get_line(client,buf,sizeof(buf));
     //处理接收数据
     i=0;
     j=0;
@@ -101,7 +101,7 @@ void accept_request(int client)
        while((char_num>0)&&(strcmp("\n",buf)))
        {
 	    //获取下一行请求信息   
-	    char_num=getline(client,buf,sizeof(buf));
+	    char_num=get_line(client,buf,sizeof(buf));
             //向客户端发送找不到文件
 	    not_found(client);
        }
@@ -201,7 +201,7 @@ void  execute_cgi(int client, const char *path, const char *method, char *string
     if(strcasecmp(method,"POST")==0)
     {
        //获取下一行请求
-       char_num=getline(client,buf,sizeof(buf));
+       char_num=get_line(client,buf,sizeof(buf));
        while((char_num>0)&&strcmp("\n",buf))
        {
 	    buf[15]='\0';
@@ -209,7 +209,7 @@ void  execute_cgi(int client, const char *path, const char *method, char *string
 	    {
 		content_lenght=atoi(&buf[16]);
 	    }
-	    char_num=getline(client,buf,sizeof(buf));
+	    char_num=get_line(client,buf,sizeof(buf));
        }
        //如果没有找到content_lenght
        if(content_lenght==-1)
@@ -313,7 +313,7 @@ void serve_file(int client,char *filename)
     //读取并丢弃 header
     while ((char_num > 0) && strcmp("\n", buf))
     {
-        char_num = getline(client, buf, sizeof(buf));
+        char_num = get_line(client, buf, sizeof(buf));
     }
     // 打开 sever 的文件
     resource = fopen(filename, "r");
