@@ -94,7 +94,7 @@ void accept_request(int client)
        }
     }
     //格式化uri到path数组中
-    sprintf(path,"hdocs%s",uri);
+    sprintf(path,"/home/ubuntu/webServer%s",uri);
     //根据路径查找文件
     //如果找不到
     if(stat(path,&st)==-1)
