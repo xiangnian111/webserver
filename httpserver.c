@@ -75,6 +75,7 @@ void accept_request(int client)
     }
     while(!(' '==buf[j])&&(i<sizeof(uri)-1)&&(j<sizeof(buf)))
     {
+       // 存下uri
        uri[i]=buf[j];
        i++;
        j++;
@@ -83,6 +84,7 @@ void accept_request(int client)
     //处理get方法
     if(strcasecmp(method,"GET")==0)
     {
+       //待处理请求为uri
        string=uri;
        while((*string!='?')&&(*string!='\0'))
        {
@@ -98,6 +100,11 @@ void accept_request(int client)
     }
     //格式化uri到path数组中
     sprintf(path,"/home/ubuntu/webServer%s",uri);
+    //默认情况为index.html
+    if(path[strlen(path)-1]=='/')
+    {
+	strcat(path,"index.html");
+    }
     //根据路径查找文件
     //如果找不到
     if(stat(path,&st)==-1)
@@ -114,16 +121,27 @@ void accept_request(int client)
     //如果找到
     else
     {
-	//如果是cgi
-	if ((st.st_mode & S_IXUSR) || (st.st_mode & S_IXGRP) || (st.st_mode & S_IXOTH))
+        //如果是目录，则默认使用该目录下的index.html文件
+	if((st.st_mode&S_IFMT)==S_IFDIR)
 	{
-	    flag=1;
-	    //执行cgi
-	    execute_cgi(client, path, method,string);
+	   strcat(path,"/index.html");
 	}
-        //否则直接返回服务器文件
-	serve_file(client, path);
+	if((st.st_mode&S_IXUSR)||(st.st_mode&S_IXGRP)||(st.st_mode&S_IXOTH))
+	{
+	   flag=1;
+	}
+	//如果不是cgi，直接把服务器文件返回,否则执行cgi
+	if(!flag)
+	{
+	   serve_file(client,path);
+	}
+	else
+	{
+	   execute_cgi(client,path,method,string);
+	}
     }
+    //断开与客户端连接
+    close(client);
 }
 
 //获取下一行请求的函数
@@ -131,6 +149,7 @@ int get_line(int sock,char *buf,int size)
 {
     int n,i=0;
     char c='\0';
+    //设置终止条件为\n
     while((i<size-1)&&(c!='\n'))
     {
        //一次仅仅接收一个字节
@@ -168,25 +187,21 @@ void error_request(int client )
     char buf[1024];
     sprintf(buf, "HTTP/1.0 501 Method Not Implemented\r\n");
     send(client, buf, strlen(buf), 0);
+    //服务器信息
     sprintf(buf, SERVER_STRING);
     send(client, buf, strlen(buf), 0);
     sprintf(buf, "Content-Type: text/html\r\n");
     send(client, buf, strlen(buf), 0);
-    sprintf(buf, SERVER_STRING);
     sprintf(buf, "\r\n");
     send(client, buf, strlen(buf), 0);
     sprintf(buf, "<html><head><title>Method Not Implemented\r\n");
     send(client, buf, strlen(buf), 0);
-    sprintf(buf, SERVER_STRING);
     sprintf(buf, "</title></head>\r\n");
     send(client, buf, strlen(buf), 0);
-    sprintf(buf, SERVER_STRING);
     sprintf(buf, "<body><p>HTTP request method not supported.\r\n");
     send(client, buf, strlen(buf), 0);
-    sprintf(buf, SERVER_STRING); 
     sprintf(buf, "</body></html>\r\n");
     send(client, buf, strlen(buf), 0);
-    sprintf(buf, SERVER_STRING);
  
  }
 
