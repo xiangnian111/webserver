@@ -188,7 +188,7 @@ void error_request(int client )
  }
 
 //cgi程序的处理
-void  execute_cgi(int client, const char *path, const char *method, char *string)
+void  execute_cgi(int client, const char *path, const char *method,const char *string)
 {
     char buf[1024];
     char input[2];
