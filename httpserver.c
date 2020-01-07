@@ -9,6 +9,8 @@
 #include <sys/stat.h>
 #include <pthread.h>
 
+#define SERVER_STRING "Server: jdbhttpd/0.1.0\r\n"
+
 //定义的函数
 void accept_request(int);
 int get_line(int,char*,int);
@@ -122,7 +124,7 @@ void accept_request(int client)
 }
 
 //获取下一行请求的函数
-int getline(int sock,char *buf,int size)
+int get_line(int sock,char *buf,int size)
 {
     int n,i=0;
     char c='\0';
