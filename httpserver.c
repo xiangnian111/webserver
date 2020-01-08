@@ -128,7 +128,7 @@ void accept_request(int client)
 	}
       	if((st.st_mode&S_IXUSR)||(st.st_mode&S_IXGRP)||(st.st_mode&S_IXOTH))
 	{
-	   flag=1;
+	  // flag=1;
 	}
 	//如果不是cgi，直接把服务器文件返回,否则执行cgi
 	if(!flag)
