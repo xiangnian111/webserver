@@ -126,7 +126,7 @@ void accept_request(int client)
 	{
 	   strcat(path,"/index.html");
 	}
-	if((st.st_mode&S_IXUSR)||(st.st_mode&S_IXGRP)||(st.st_mode&S_IXOTH))
+      	if((st.st_mode&S_IXUSR)||(st.st_mode&S_IXGRP)||(st.st_mode&S_IXOTH))
 	{
 	   flag=1;
 	}
@@ -534,7 +534,7 @@ int main(void)
            error_die("accept");
 	}
         //派生新线程用 accept_request 函数处理新请求
-        if (pthread_create(&newthread , NULL, accept_request, client_sock) != 0)
+        if (pthread_create(&newthread , NULL,(void *)accept_request, client_sock) != 0)
 	{
            perror("pthread_create");
 	}
